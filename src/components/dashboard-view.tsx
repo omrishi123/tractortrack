@@ -6,7 +6,7 @@ import AppHeader from './app-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Search, Trash2 } from 'lucide-react';
+import { PlusCircle, Search, Trash2, Users, FileWarning } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAppContext } from '@/contexts/app-context';
 import CustomerModal from './modals/customer-modal';
@@ -26,8 +26,10 @@ export default function DashboardView() {
     const totalIncome = workLogs.reduce((sum, log) => sum + (log.totalCost - log.balance), 0);
     const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
     const netProfit = totalIncome - totalExpenses;
-    return { totalIncome, totalExpenses, netProfit };
-  }, [workLogs, expenses]);
+    const totalCustomers = customers.length;
+    const totalDues = workLogs.reduce((sum, log) => sum + log.balance, 0);
+    return { totalIncome, totalExpenses, netProfit, totalCustomers, totalDues };
+  }, [workLogs, expenses, customers]);
 
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -47,7 +49,7 @@ export default function DashboardView() {
     <>
       <AppHeader />
       <main className="container py-8">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -72,6 +74,24 @@ export default function DashboardView() {
               <div className={`text-2xl font-bold ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 ₹{summary.netProfit.toFixed(2)}
               </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{summary.totalCustomers}</div>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Dues</CardTitle>
+               <FileWarning className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">₹{summary.totalDues.toFixed(2)}</div>
             </CardContent>
           </Card>
         </div>
