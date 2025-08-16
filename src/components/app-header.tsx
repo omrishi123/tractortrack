@@ -23,6 +23,8 @@ export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
     auth.signOut();
   };
 
+  const displayName = settings?.userName || currentUser?.displayName || currentUser?.email;
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -38,7 +40,7 @@ export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
                 <span className="inline-block font-bold text-xl">TractorTrack</span>
               </div>
             )}
-             {currentUser && <p className="text-sm text-muted-foreground self-center">Signed in as {currentUser.email}</p>}
+             {displayName && <p className="text-sm text-muted-foreground self-center hidden sm:block">Welcome, {displayName}</p>}
           </div>
 
           <div className="flex flex-1 items-center justify-end space-x-4">
