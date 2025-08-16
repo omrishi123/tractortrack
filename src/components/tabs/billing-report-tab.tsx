@@ -17,12 +17,9 @@ interface BillingReportTabProps {
 
 // Helper function to call the globally defined handlePrint
 const triggerPrint = () => {
-    if (window.handlePrint) {
-        window.handlePrint();
-    } else {
-        console.error("handlePrint function not found on window");
-        window.print();
-    }
+    // This function will trigger the browser's print dialog,
+    // which will then use the print-specific CSS to format the output.
+    window.print();
 }
 
 declare global {
@@ -133,6 +130,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
 
   return (
     <>
+    {/* This is the on-screen UI. It will be hidden during printing */}
     <Card className="print:hidden">
       <CardHeader>
         <CardTitle>Billing Report</CardTitle>
@@ -187,97 +185,80 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       </CardFooter>
     </Card>
 
-    <div className="hidden print:block">
-        <div ref={printAreaRef} className="print-area p-8 font-sans">
-          <header className="flex justify-between items-start pb-4 border-b-2 border-black">
-              <div className="text-left">
-                  <h1 className="text-3xl font-bold text-black">{settings.userName}</h1>
-                  <p className="text-gray-600">{settings.tractorName}</p>
-              </div>
-              {settings.logo && (
-                  <img src={settings.logo} alt="Business Logo" className="max-h-24 max-w-24 object-contain"/>
-              )}
-          </header>
+    {/* This is the dedicated print layout. It is hidden on screen and only visible for printing. */}
+    <div ref={printAreaRef} className="hidden print:block p-8 font-sans">
+      <header className="flex justify-between items-start pb-4 border-b-2 border-black">
+          <div className="text-left">
+              <h1 className="text-3xl font-bold text-black">{settings.userName}</h1>
+              <p className="text-gray-600">{settings.tractorName}</p>
+          </div>
+          {settings.logo && (
+              <img src={settings.logo} alt="Business Logo" className="max-h-24 max-w-24 object-contain"/>
+          )}
+      </header>
 
-          <section className="my-8">
-              <div className="grid grid-cols-2 gap-4">
-                  <div>
-                      <h2 className="text-sm font-semibold uppercase text-gray-500">BILL TO</h2>
-                      <p className="text-lg font-bold text-black">{customer.name}</p>
-                      <p className="text-gray-700">{customer.phone}</p>
-                  </div>
-                  <div className="text-right">
-                      <h2 className="text-sm font-semibold uppercase text-gray-500">INVOICE DATE</h2>
-                      <p className="text-lg font-medium text-black">{new Date().toLocaleDateString()}</p>
-                  </div>
+      <section className="my-8">
+          <div className="grid grid-cols-2 gap-4">
+              <div>
+                  <h2 className="text-sm font-semibold uppercase text-gray-500">BILL TO</h2>
+                  <p className="text-lg font-bold text-black">{customer.name}</p>
+                  <p className="text-gray-700">{customer.phone}</p>
               </div>
-          </section>
-          
-          <section>
-               <table className="w-full text-left border-collapse">
-                  <thead>
-                      <tr className="bg-black text-white">
-                          <th className="p-3">Date</th>
-                          <th className="p-3">Work Details</th>
-                          <th className="p-3 text-right">Cost</th>
-                          <th className="p-3 text-right">Paid</th>
-                          <th className="p-3 text-right">Balance</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                     {filteredWorkLogs.map(log => (
-                        <tr key={log.id} className="border-b border-gray-300">
-                          <td className="p-3">{new Date(log.date).toLocaleDateString()}</td>
-                          <td className="p-3">{log.equipment} ({log.hours}h {log.minutes}m)</td>
-                          <td className="p-3 text-right">₹{log.totalCost.toFixed(2)}</td>
-                          <td className="p-3 text-right">₹{(log.totalCost - log.balance).toFixed(2)}</td>
-                          <td className="p-3 text-right">₹{log.balance.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-              </table>
-          </section>
+              <div className="text-right">
+                  <h2 className="text-sm font-semibold uppercase text-gray-500">INVOICE DATE</h2>
+                  <p className="text-lg font-medium text-black">{new Date().toLocaleDateString()}</p>
+              </div>
+          </div>
+      </section>
+      
+      <section>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                  <tr className="bg-black text-white">
+                      <th className="p-3">Date</th>
+                      <th className="p-3">Work Details</th>
+                      <th className="p-3 text-right">Cost</th>
+                      <th className="p-3 text-right">Paid</th>
+                      <th className="p-3 text-right">Balance</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {filteredWorkLogs.map(log => (
+                    <tr key={log.id} className="border-b border-gray-300">
+                      <td className="p-3">{new Date(log.date).toLocaleDateString()}</td>
+                      <td className="p-3">{log.equipment} ({log.hours}h {log.minutes}m)</td>
+                      <td className="p-3 text-right">₹{log.totalCost.toFixed(2)}</td>
+                      <td className="p-3 text-right">₹{(log.totalCost - log.balance).toFixed(2)}</td>
+                      <td className="p-3 text-right">₹{log.balance.toFixed(2)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+          </table>
+      </section>
 
-          <section className="mt-8 flex justify-end">
-              <div className="w-full max-w-xs">
-                  <div className="flex justify-between py-2">
-                      <span className="font-semibold text-gray-700">Total Cost</span>
-                      <span className="font-bold text-black">₹{totals.cost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                      <span className="font-semibold text-gray-700">Total Paid</span>
-                      <span className="font-bold text-green-600">₹{totals.paid.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-t-2 border-black mt-2">
-                      <span className="font-bold text-lg text-black">BALANCE DUE</span>
-                      <span className="font-bold text-lg text-red-600">₹{totals.balance.toFixed(2)}</span>
-                  </div>
+      <section className="mt-8 flex justify-end">
+          <div className="w-full max-w-xs">
+              <div className="flex justify-between py-2">
+                  <span className="font-semibold text-gray-700">Total Cost</span>
+                  <span className="font-bold text-black">₹{totals.cost.toFixed(2)}</span>
               </div>
-          </section>
-          
-          <footer className="mt-24">
-              <div className="w-1/3 pt-8 border-t-2 border-gray-400">
-                  <p className="text-gray-600 text-sm">Signature</p>
+              <div className="flex justify-between py-2">
+                  <span className="font-semibold text-gray-700">Total Paid</span>
+                  <span className="font-bold text-green-600">₹{totals.paid.toFixed(2)}</span>
               </div>
-          </footer>
-        </div>
+              <div className="flex justify-between py-2 border-t-2 border-black mt-2">
+                  <span className="font-bold text-lg text-black">BALANCE DUE</span>
+                  <span className="font-bold text-lg text-red-600">₹{totals.balance.toFixed(2)}</span>
+              </div>
+          </div>
+      </section>
+      
+      <footer className="mt-24">
+          <div className="w-1/3 pt-8 border-t-2 border-gray-400">
+              <p className="text-gray-600 text-sm">Signature</p>
+          </div>
+      </footer>
     </div>
-    <style jsx global>{`
-        @media print {
-          body > *:not(.print-area) {
-            display: none !important;
-          }
-          .print-area {
-            display: block !important;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-          }
-        }
-    `}</style>
     </>
   );
 }
-
-    
