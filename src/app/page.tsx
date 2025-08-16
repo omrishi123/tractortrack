@@ -1,8 +1,9 @@
+
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { AppData, View, Customer, WorkLog, Expense, AppSettings, Payment } from '@/lib/types';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useCloudStorage } from '@/hooks/use-cloud-storage';
 import { AppContext, AppContextType } from '@/contexts/app-context';
 import DashboardView from '@/components/dashboard-view';
 import CustomerDetailView from '@/components/customer-detail-view';
@@ -25,13 +26,16 @@ const defaultSettings: AppSettings = {
   },
 };
 
-export default function Home() {
-  const [data, setData] = useLocalStorage<AppData>('tractorTrackData', {
+const initialData: AppData = {
     customers: [],
     workLogs: [],
     expenses: [],
     settings: defaultSettings,
-  });
+};
+
+
+export default function Home() {
+  const [data, setData] = useCloudStorage(initialData);
 
   const [view, setView] = useState<View>({ type: 'dashboard' });
   const [isInitialized, setIsInitialized] = useState(false);
@@ -108,7 +112,7 @@ export default function Home() {
             return w;
           })
         }));
-        toast({ title: "Payment Added", description: `Payment of ${payment.amount} has been recorded.` });
+        toast({ title: "Payment Added", description: `Payment of ₹${payment.amount} has been recorded.` });
       },
 
       // Expenses
@@ -134,6 +138,7 @@ export default function Home() {
 
       // Notes
       updateCustomerNotes: updateCustomerNotes,
+      data: data,
     };
   }, [data, view, setData, toast, updateCustomerNotes]);
 

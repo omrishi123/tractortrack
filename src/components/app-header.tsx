@@ -1,11 +1,14 @@
+
 "use client";
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings, ArrowLeft } from 'lucide-react';
+import { Settings, ArrowLeft, LogOut } from 'lucide-react';
 import { TractorIcon } from '@/components/icons';
 import { useAppContext } from '@/contexts/app-context';
 import SettingsModal from './modals/settings-modal';
+import { auth } from '@/lib/firebase';
+import { useAuth } from '@/contexts/auth-context';
 
 interface AppHeaderProps {
   showBackButton?: boolean;
@@ -13,7 +16,12 @@ interface AppHeaderProps {
 
 export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
   const { settings, setView } = useAppContext();
+  const { currentUser } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+
+  const handleSignOut = () => {
+    auth.signOut();
+  };
 
   return (
     <>
@@ -30,6 +38,7 @@ export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
                 <span className="inline-block font-bold text-xl">TractorTrack</span>
               </div>
             )}
+             {currentUser && <p className="text-sm text-muted-foreground self-center">Signed in as {currentUser.email}</p>}
           </div>
 
           <div className="flex flex-1 items-center justify-end space-x-4">
@@ -37,6 +46,10 @@ export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
               <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)}>
                 <Settings className="h-5 w-5" />
                 <span className="sr-only">Settings</span>
+              </Button>
+               <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                <LogOut className="h-5 w-5" />
+                <span className="sr-only">Sign Out</span>
               </Button>
             </nav>
           </div>

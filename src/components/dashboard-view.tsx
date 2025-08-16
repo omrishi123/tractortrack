@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState } from 'react';
@@ -41,8 +42,6 @@ export default function DashboardView() {
     setCustomerToEdit(undefined);
     setIsCustomerModalOpen(true);
   };
-
-  const { data } = useAppContext();
 
   return (
     <>
