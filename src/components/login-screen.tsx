@@ -3,23 +3,25 @@
 
 import React, { useEffect } from 'react';
 import { EmailAuthProvider } from 'firebase/auth';
-import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
 import { auth } from '@/lib/firebase';
 import { TractorIcon } from './icons';
 
 export default function LoginScreen() {
   useEffect(() => {
-    const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
-    ui.start('#firebaseui-auth-container', {
-      signInOptions: [
-        {
-          provider: EmailAuthProvider.PROVIDER_ID,
-          requireDisplayName: false
-        },
-      ],
-      signInSuccessUrl: '/',
-      credentialHelper: firebaseui.auth.CredentialHelper.NONE
+    // Dynamically import firebaseui here to ensure it only runs on the client
+    import('firebaseui').then(firebaseui => {
+      const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
+      ui.start('#firebaseui-auth-container', {
+        signInOptions: [
+          {
+            provider: EmailAuthProvider.PROVIDER_ID,
+            requireDisplayName: false
+          },
+        ],
+        signInSuccessUrl: '/',
+        credentialHelper: firebaseui.auth.CredentialHelper.NONE
+      });
     });
   }, []);
 
