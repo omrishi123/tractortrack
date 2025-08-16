@@ -48,6 +48,37 @@ export default function Home() {
     }
   }, [data]);
 
+  // Handle back button navigation
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // When the user clicks the back button, we always go to the dashboard.
+      // This prevents the app from closing unexpectedly.
+      if (view.type === 'customer-detail') {
+        setView({ type: 'dashboard' });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [view.type]);
+
+  const handleSetView = useCallback((newView: View) => {
+    // When navigating to a customer, push a state to browser history
+    if (newView.type === 'customer-detail' && view.type === 'dashboard') {
+      // A null state is pushed, but the URL change creates a history entry
+      window.history.pushState(null, '', `/?customer=${newView.customerId}`);
+    }
+    // When returning to dashboard, you could use history.back() or just set the view
+    if (newView.type === 'dashboard' && view.type === 'customer-detail') {
+       window.history.back();
+    }
+    setView(newView);
+  }, [view.type]);
+
+
   const updateCustomerNotes = useCallback((customerId: string, notes: string) => {
     setData(prev => ({
         ...prev,
@@ -60,7 +91,7 @@ export default function Home() {
     return {
       ...data,
       view,
-      setView,
+      setView: handleSetView,
       
       addCustomer: (customer) => {
         const newCustomer = { ...customer, id: uuidv4(), notes: '' };
@@ -137,7 +168,7 @@ export default function Home() {
       updateCustomerNotes: updateCustomerNotes,
       data: data,
     };
-  }, [data, view, setData, toast, updateCustomerNotes]);
+  }, [data, view, setData, toast, updateCustomerNotes, handleSetView]);
 
   if (!isInitialized) {
     return <div className="flex h-screen w-full items-center justify-center bg-background">Loading...</div>;
