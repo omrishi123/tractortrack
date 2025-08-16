@@ -2,15 +2,22 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { User, onAuthStateChanged, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { AppSettings } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
   needsOnboarding: boolean;
+}
+
+declare global {
+    interface Window {
+        triggerAndroidSignIn?: (idToken: string) => void;
+    }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,8 +34,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Function to handle the ID token from Android
+    const handleAndroidIdToken = async (idToken: string) => {
+        try {
+            const credential = GoogleAuthProvider.credential(idToken);
+            await signInWithCredential(auth, credential);
+            toast({ title: "Signed In", description: "Successfully signed in via Android." });
+        } catch (error: any) {
+            console.error("Android Sign-In Error:", error);
+            toast({ variant: "destructive", title: "Sign-In Failed", description: error.message });
+        }
+    };
+    
+    // Expose the handler to the window object
+    window.triggerAndroidSignIn = handleAndroidIdToken;
+
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (!user) {
@@ -36,8 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setNeedsOnboarding(false);
       }
     });
-    return () => unsubscribeAuth();
-  }, []);
+
+    return () => {
+        unsubscribeAuth();
+        delete window.triggerAndroidSignIn; // Clean up the window function
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (!currentUser) {

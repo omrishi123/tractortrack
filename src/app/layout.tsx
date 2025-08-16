@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
@@ -16,6 +17,7 @@ declare global {
             printPage: () => void;
         };
         triggerWebGoogleSignIn?: () => void;
+        handleAndroidLogin?: (idToken: string) => void;
     }
 }
 
@@ -48,6 +50,22 @@ export default function RootLayout({
         } else {
             // Fallback for regular web browsers
             window.print();
+        }
+    }
+
+    /**
+     * This is the missing function that the Android app is trying to call.
+     * It receives the login token from the app.
+     */
+    function handleAndroidLogin(idToken) {
+        console.log("SUCCESS: Received ID Token from Android app:", idToken);
+        
+        // This function will now be defined in AuthProvider to handle the token
+        if (window.triggerAndroidSignIn) {
+            window.triggerAndroidSignIn(idToken);
+        } else {
+            console.error("Android sign-in handler (triggerAndroidSignIn) not found on window.");
+            alert("Login failed: App is not ready to handle the login token.");
         }
     }
   `;
