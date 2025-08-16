@@ -17,9 +17,12 @@ interface BillingReportTabProps {
 
 // Helper function to call the globally defined handlePrint
 const triggerPrint = () => {
-    // This function will trigger the browser's print dialog,
-    // which will then use the print-specific CSS to format the output.
-    window.print();
+    if (window.handlePrint) {
+        window.handlePrint();
+    } else {
+        // Fallback if the global function isn't defined for some reason
+        window.print();
+    }
 }
 
 declare global {
