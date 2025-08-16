@@ -42,15 +42,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
   }, [filteredWorkLogs]);
 
   const handlePrint = () => {
-    const printContent = printAreaRef.current;
-    if (printContent) {
-      const originalContents = document.body.innerHTML;
-      const printContents = printContent.innerHTML;
-      document.body.innerHTML = printContents;
-      window.print();
-      document.body.innerHTML = originalContents;
-      window.location.reload(); // To restore event listeners
-    }
+    window.print();
   };
 
   const handleExportPDF = () => {
@@ -80,9 +72,9 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       const logData = [
         new Date(log.date).toLocaleDateString(),
         `${log.equipment} (${log.hours}h ${log.minutes}m)`,
-        `₹${log.totalCost.toFixed(2)}`,
-        `₹${(log.totalCost - log.balance).toFixed(2)}`,
-        `₹${log.balance.toFixed(2)}`
+        `\u20B9${log.totalCost.toFixed(2)}`,
+        `\u20B9${(log.totalCost - log.balance).toFixed(2)}`,
+        `\u20B9${log.balance.toFixed(2)}`
       ];
       tableRows.push(logData);
     });
@@ -101,11 +93,11 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('Total Cost:', 140, finalY + 10, { align: 'right' });
-    doc.text(`₹${totals.cost.toFixed(2)}`, 200, finalY + 10, { align: 'right' });
+    doc.text(`\u20B9${totals.cost.toFixed(2)}`, 200, finalY + 10, { align: 'right' });
     doc.text('Total Paid:', 140, finalY + 17, { align: 'right' });
-    doc.text(`₹${totals.paid.toFixed(2)}`, 200, finalY + 17, { align: 'right' });
+    doc.text(`\u20B9${totals.paid.toFixed(2)}`, 200, finalY + 17, { align: 'right' });
     doc.text('Balance Due:', 140, finalY + 24, { align: 'right' });
-    doc.text(`₹${totals.balance.toFixed(2)}`, 200, finalY + 24, { align: 'right' });
+    doc.text(`\u20B9${totals.balance.toFixed(2)}`, 200, finalY + 24, { align: 'right' });
     
     // Signature
     doc.line(140, finalY + 50, 200, finalY + 50);
@@ -117,12 +109,13 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
   if (!customer) return null;
 
   return (
-    <Card>
+    <>
+    <Card className="print:hidden">
       <CardHeader>
         <CardTitle>Billing Report</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-4 items-end bg-muted p-4 rounded-lg mb-6 no-print">
+        <div className="flex flex-wrap gap-4 items-end bg-muted p-4 rounded-lg mb-6">
           <div>
             <label className="text-sm font-medium">From Date</label>
             <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
@@ -166,92 +159,104 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
                 </TableRow>
             </TableFooter>
         </Table>
-
-        {/* This is the hidden, styled div for printing */}
-        <div ref={printAreaRef} className="hidden print:block p-8 font-sans">
-            <style>{`
-                @media print {
-                    body { -webkit-print-color-adjust: exact; }
-                    .no-print { display: none; }
-                }
-            `}</style>
-            <header className="flex justify-between items-start pb-4 border-b-2 border-gray-800">
-                <div className="text-left">
-                    <h1 className="text-3xl font-bold text-gray-900">{settings.userName}</h1>
-                    <p className="text-gray-600">{settings.tractorName}</p>
-                </div>
-                {settings.logo && (
-                    <img src={settings.logo} alt="Business Logo" className="max-h-24 max-w-24 object-contain"/>
-                )}
-            </header>
-
-            <section className="my-8">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <h2 className="text-sm font-semibold uppercase text-gray-600">Bill To</h2>
-                        <p className="text-lg font-bold text-gray-800">{customer.name}</p>
-                        <p className="text-gray-700">{customer.phone}</p>
-                    </div>
-                    <div className="text-right">
-                        <h2 className="text-sm font-semibold uppercase text-gray-600">Invoice Date</h2>
-                        <p className="text-lg font-medium text-gray-800">{new Date().toLocaleDateString()}</p>
-                    </div>
-                </div>
-            </section>
-            
-            <section>
-                 <table className="w-full text-left">
-                    <thead>
-                        <tr className="bg-gray-800 text-white">
-                            <th className="p-3">Date</th>
-                            <th className="p-3">Work Details</th>
-                            <th className="p-3 text-right">Cost</th>
-                            <th className="p-3 text-right">Paid</th>
-                            <th className="p-3 text-right">Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       {filteredWorkLogs.map(log => (
-                          <tr key={log.id} className="border-b">
-                            <td className="p-3">{new Date(log.date).toLocaleDateString()}</td>
-                            <td className="p-3">{log.equipment} ({log.hours}h {log.minutes}m)</td>
-                            <td className="p-3 text-right">₹{log.totalCost.toFixed(2)}</td>
-                            <td className="p-3 text-right">₹{(log.totalCost - log.balance).toFixed(2)}</td>
-                            <td className="p-3 text-right">₹{log.balance.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </section>
-
-            <section className="mt-8 flex justify-end">
-                <div className="w-full max-w-xs">
-                    <div className="flex justify-between py-2">
-                        <span className="font-semibold text-gray-700">Total Cost</span>
-                        <span className="font-bold text-gray-800">₹{totals.cost.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between py-2">
-                        <span className="font-semibold text-gray-700">Total Paid</span>
-                        <span className="font-bold text-green-600">₹{totals.paid.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-t-2 border-gray-800 mt-2">
-                        <span className="font-bold text-lg text-gray-900">Balance Due</span>
-                        <span className="font-bold text-lg text-red-600">₹{totals.balance.toFixed(2)}</span>
-                    </div>
-                </div>
-            </section>
-            
-            <footer className="mt-24">
-                <div className="w-1/3 pt-8 border-t-2 border-gray-400">
-                    <p className="text-gray-600 text-sm">Signature</p>
-                </div>
-            </footer>
-        </div>
-
       </CardContent>
-      <CardFooter className="no-print">
+      <CardFooter>
           <Button onClick={handlePrint} className="w-full"><Printer className="mr-2 h-4 w-4" /> Print Bill</Button>
       </CardFooter>
     </Card>
+
+    {/* This is the hidden, styled div for printing */}
+    <div ref={printAreaRef} className="hidden print:block p-8 font-sans">
+        <style>{`
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+                .print-area, .print-area * {
+                    visibility: visible;
+                }
+                .print-area {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                }
+            }
+        `}</style>
+        <div className="print-area">
+          <header className="flex justify-between items-start pb-4 border-b-2 border-gray-800">
+              <div className="text-left">
+                  <h1 className="text-3xl font-bold text-gray-900">{settings.userName}</h1>
+                  <p className="text-gray-600">{settings.tractorName}</p>
+              </div>
+              {settings.logo && (
+                  <img src={settings.logo} alt="Business Logo" className="max-h-24 max-w-24 object-contain"/>
+              )}
+          </header>
+
+          <section className="my-8">
+              <div className="grid grid-cols-2 gap-4">
+                  <div>
+                      <h2 className="text-sm font-semibold uppercase text-gray-600">Bill To</h2>
+                      <p className="text-lg font-bold text-gray-800">{customer.name}</p>
+                      <p className="text-gray-700">{customer.phone}</p>
+                  </div>
+                  <div className="text-right">
+                      <h2 className="text-sm font-semibold uppercase text-gray-600">Invoice Date</h2>
+                      <p className="text-lg font-medium text-gray-800">{new Date().toLocaleDateString()}</p>
+                  </div>
+              </div>
+          </section>
+          
+          <section>
+               <table className="w-full text-left">
+                  <thead>
+                      <tr className="bg-gray-800 text-white">
+                          <th className="p-3">Date</th>
+                          <th className="p-3">Work Details</th>
+                          <th className="p-3 text-right">Cost</th>
+                          <th className="p-3 text-right">Paid</th>
+                          <th className="p-3 text-right">Balance</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                     {filteredWorkLogs.map(log => (
+                        <tr key={log.id} className="border-b">
+                          <td className="p-3">{new Date(log.date).toLocaleDateString()}</td>
+                          <td className="p-3">{log.equipment} ({log.hours}h {log.minutes}m)</td>
+                          <td className="p-3 text-right">₹{log.totalCost.toFixed(2)}</td>
+                          <td className="p-3 text-right">₹{(log.totalCost - log.balance).toFixed(2)}</td>
+                          <td className="p-3 text-right">₹{log.balance.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+              </table>
+          </section>
+
+          <section className="mt-8 flex justify-end">
+              <div className="w-full max-w-xs">
+                  <div className="flex justify-between py-2">
+                      <span className="font-semibold text-gray-700">Total Cost</span>
+                      <span className="font-bold text-gray-800">₹{totals.cost.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                      <span className="font-semibold text-gray-700">Total Paid</span>
+                      <span className="font-bold text-green-600">₹{totals.paid.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-t-2 border-gray-800 mt-2">
+                      <span className="font-bold text-lg text-gray-900">Balance Due</span>
+                      <span className="font-bold text-lg text-red-600">₹{totals.balance.toFixed(2)}</span>
+                  </div>
+              </div>
+          </section>
+          
+          <footer className="mt-24">
+              <div className="w-1/3 pt-8 border-t-2 border-gray-400">
+                  <p className="text-gray-600 text-sm">Signature</p>
+              </div>
+          </footer>
+        </div>
+    </div>
+    </>
   );
 }
