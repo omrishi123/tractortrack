@@ -21,10 +21,20 @@ const triggerPrint = () => {
         window.handlePrint();
     } else {
         console.error("handlePrint function not found on window");
-        // Fallback for safety, though the global script should always define it
         window.print();
     }
 }
+
+declare global {
+    interface Window {
+        Android?: {
+            startGoogleSignIn: () => void;
+            printPage: () => void;
+            savePdf?: (base64Data: string, fileName: string) => void;
+        };
+    }
+}
+
 
 export default function BillingReportTab({ customerId }: BillingReportTabProps) {
   const { customers, workLogs, settings } = useAppContext();
@@ -56,7 +66,6 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     if (!customer) return;
     const doc = new jsPDF();
     
-    // Header
     if (settings.logo) {
       doc.addImage(settings.logo, 'PNG', 14, 10, 30, 30);
     }
@@ -65,7 +74,6 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     doc.setFontSize(12);
     doc.text(settings.tractorName, 105, 28, { align: 'center' });
     
-    // Bill To
     doc.setFontSize(14);
     doc.text('Bill To:', 14, 50);
     doc.setFontSize(12);
@@ -96,7 +104,6 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
 
     const finalY = (doc as any).lastAutoTable.finalY;
     
-    // Totals
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('Total Cost:', 140, finalY + 10, { align: 'right' });
@@ -106,11 +113,20 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     doc.text('Balance Due:', 140, finalY + 24, { align: 'right' });
     doc.text(`Rs ${totals.balance.toFixed(2)}`, 200, finalY + 24, { align: 'right' });
     
-    // Signature
     doc.line(140, finalY + 50, 200, finalY + 50);
     doc.text('Signature', 170, finalY + 55, { align: 'center' });
 
-    doc.save(`billing-report-${customer?.name}.pdf`);
+    const fileName = `billing-report-${customer?.name}.pdf`;
+
+    // Check if the native Android interface is available
+    if (window.Android && typeof window.Android.savePdf === 'function') {
+        // Get the PDF as a Base64 string and pass it to the native code
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        window.Android.savePdf(pdfBase64, fileName);
+    } else {
+        // Fallback for regular web browsers
+        doc.save(fileName);
+    }
   };
 
   if (!customer) return null;
@@ -135,7 +151,6 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
           <Button onClick={handleExportPDF} variant="outline" size="sm"><Download className="mr-2 h-4 w-4" /> Export PDF</Button>
         </div>
 
-        {/* This is the visible table for the UI */}
         <Table>
             <TableHeader>
               <TableRow>
@@ -172,12 +187,11 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       </CardFooter>
     </Card>
 
-    {/* This is the hidden, styled div for printing */}
-    <div className="hidden">
+    <div className="hidden print:block">
         <div ref={printAreaRef} className="print-area p-8 font-sans">
-          <header className="flex justify-between items-start pb-4 border-b-2 border-gray-800">
+          <header className="flex justify-between items-start pb-4 border-b-2 border-black">
               <div className="text-left">
-                  <h1 className="text-3xl font-bold text-gray-900">{settings.userName}</h1>
+                  <h1 className="text-3xl font-bold text-black">{settings.userName}</h1>
                   <p className="text-gray-600">{settings.tractorName}</p>
               </div>
               {settings.logo && (
@@ -188,13 +202,13 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
           <section className="my-8">
               <div className="grid grid-cols-2 gap-4">
                   <div>
-                      <h2 className="text-sm font-semibold uppercase text-gray-600">Bill To</h2>
-                      <p className="text-lg font-bold text-gray-800">{customer.name}</p>
+                      <h2 className="text-sm font-semibold uppercase text-gray-500">BILL TO</h2>
+                      <p className="text-lg font-bold text-black">{customer.name}</p>
                       <p className="text-gray-700">{customer.phone}</p>
                   </div>
                   <div className="text-right">
-                      <h2 className="text-sm font-semibold uppercase text-gray-600">Invoice Date</h2>
-                      <p className="text-lg font-medium text-gray-800">{new Date().toLocaleDateString()}</p>
+                      <h2 className="text-sm font-semibold uppercase text-gray-500">INVOICE DATE</h2>
+                      <p className="text-lg font-medium text-black">{new Date().toLocaleDateString()}</p>
                   </div>
               </div>
           </section>
@@ -202,7 +216,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
           <section>
                <table className="w-full text-left border-collapse">
                   <thead>
-                      <tr className="bg-gray-800 text-white">
+                      <tr className="bg-black text-white">
                           <th className="p-3">Date</th>
                           <th className="p-3">Work Details</th>
                           <th className="p-3 text-right">Cost</th>
@@ -212,7 +226,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
                   </thead>
                   <tbody>
                      {filteredWorkLogs.map(log => (
-                        <tr key={log.id} className="border-b">
+                        <tr key={log.id} className="border-b border-gray-300">
                           <td className="p-3">{new Date(log.date).toLocaleDateString()}</td>
                           <td className="p-3">{log.equipment} ({log.hours}h {log.minutes}m)</td>
                           <td className="p-3 text-right">₹{log.totalCost.toFixed(2)}</td>
@@ -228,14 +242,14 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
               <div className="w-full max-w-xs">
                   <div className="flex justify-between py-2">
                       <span className="font-semibold text-gray-700">Total Cost</span>
-                      <span className="font-bold text-gray-800">₹{totals.cost.toFixed(2)}</span>
+                      <span className="font-bold text-black">₹{totals.cost.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between py-2">
                       <span className="font-semibold text-gray-700">Total Paid</span>
                       <span className="font-bold text-green-600">₹{totals.paid.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-t-2 border-gray-800 mt-2">
-                      <span className="font-bold text-lg text-gray-900">Balance Due</span>
+                  <div className="flex justify-between py-2 border-t-2 border-black mt-2">
+                      <span className="font-bold text-lg text-black">BALANCE DUE</span>
                       <span className="font-bold text-lg text-red-600">₹{totals.balance.toFixed(2)}</span>
                   </div>
               </div>
@@ -265,3 +279,5 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     </>
   );
 }
+
+    
