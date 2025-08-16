@@ -52,24 +52,115 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     }, { cost: 0, paid: 0, balance: 0 });
   }, [filteredWorkLogs]);
 
-  // Helper function to call the globally defined handlePrint
   const triggerPrint = () => {
-    const printContents = printAreaRef.current?.innerHTML;
-    if (!printContents) {
-        console.error("Print area not found");
-        return;
-    }
+    if (!customer) return;
+
+    // Dynamically generate the HTML for the invoice
+    const invoiceHtml = `
+      <html>
+        <head>
+          <title>Invoice - ${customer.name}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap');
+            body { font-family: 'PT Sans', sans-serif; margin: 2rem; color: #333; }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 1rem; border-bottom: 2px solid black; }
+            .header .brand h1 { font-size: 2rem; font-weight: bold; margin: 0; }
+            .header .brand p { margin: 0; color: #555; }
+            .header .logo { max-height: 6rem; max-width: 6rem; }
+            .details { margin: 2rem 0; display: grid; grid-template-columns: 1fr 1fr; }
+            .details .label { font-size: 0.8rem; font-weight: bold; text-transform: uppercase; color: #777; }
+            .details .value { font-size: 1.1rem; font-weight: bold; }
+            .details .text-right { text-align: right; }
+            table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+            th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #ddd; }
+            thead th { background-color: black; color: white; }
+            tbody tr:nth-child(even) { background-color: #f9f9f9; }
+            .totals { float: right; width: 40%; margin-top: 2rem; }
+            .totals table { width: 100%; }
+            .totals td { border: none; padding: 0.25rem 0; }
+            .totals .label { text-align: right; font-weight: bold; padding-right: 1rem; }
+            .totals .final-balance { font-size: 1.2rem; font-weight: bold; border-top: 2px solid black; margin-top: 0.5rem; padding-top: 0.5rem; }
+            footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #aaa; }
+            .signature { width: 12rem; margin-top: 1rem; }
+            .signature img { max-height: 4rem; width: auto; }
+            .signature .line { border-top: 2px solid #555; padding-top: 0.5rem; }
+            .signature .label { color: #555; font-size: 0.9rem; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="brand">
+              <h1>${settings.userName}</h1>
+              <p>${settings.tractorName}</p>
+            </div>
+            ${settings.logo ? `<img src="${settings.logo}" alt="Logo" class="logo" />` : ''}
+          </div>
+          <div class="details">
+            <div>
+              <p class="label">BILL TO</p>
+              <p class="value">${customer.name}</p>
+              <p>${customer.phone}</p>
+            </div>
+            <div class="text-right">
+              <p class="label">INVOICE DATE</p>
+              <p class="value">${new Date().toLocaleDateString()}</p>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Work Details</th>
+                <th style="text-align: right;">Cost</th>
+                <th style="text-align: right;">Paid</th>
+                <th style="text-align: right;">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredWorkLogs.map(log => `
+                <tr>
+                  <td>${new Date(log.date).toLocaleDateString()}</td>
+                  <td>${log.equipment} (${log.hours}h ${log.minutes}m)</td>
+                  <td style="text-align: right;">₹${log.totalCost.toFixed(2)}</td>
+                  <td style="text-align: right;">₹${(log.totalCost - log.balance).toFixed(2)}</td>
+                  <td style="text-align: right;">₹${log.balance.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="totals">
+            <table>
+              <tr><td class="label">Total Cost:</td><td style="text-align: right;">₹${totals.cost.toFixed(2)}</td></tr>
+              <tr><td class="label">Total Paid:</td><td style="text-align: right;">₹${totals.paid.toFixed(2)}</td></tr>
+              <tr class="final-balance"><td class="label">BALANCE DUE:</td><td style="text-align: right;">₹${totals.balance.toFixed(2)}</td></tr>
+            </table>
+          </div>
+          <div style="clear: both;"></div>
+          <footer>
+            <div class="signature">
+              ${settings.signature ? `<img src="${settings.signature}" alt="Signature" />` : '<div class="line"></div>'}
+              <p class="label">Signature</p>
+            </div>
+          </footer>
+        </body>
+      </html>
+    `;
+
     const originalContents = document.body.innerHTML;
-    document.body.innerHTML = printContents;
-    
+    document.body.innerHTML = invoiceHtml;
+
     if (window.Android && typeof window.Android.printPage === 'function') {
         window.Android.printPage();
     } else {
         window.print();
     }
 
-    document.body.innerHTML = originalContents;
-    window.location.reload(); // Reload to restore styles and event listeners
+    // Use a timeout to ensure printing has been initiated before restoring the content
+    setTimeout(() => {
+        document.body.innerHTML = originalContents;
+        // Re-initialize React app or simply reload
+        window.location.reload();
+    }, 500);
   }
 
   const handleExportPDF = () => {
@@ -132,13 +223,10 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     
     const fileName = `billing-report-${customer?.name}.pdf`;
 
-    // Check if the native Android interface is available
     if (window.Android && typeof window.Android.savePdf === 'function') {
-        // Get the PDF as a Base64 string and pass it to the native code
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         window.Android.savePdf(pdfBase64, fileName);
     } else {
-        // Fallback for regular web browsers
         doc.save(fileName);
     }
   };
@@ -203,88 +291,9 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
         </Card>
       </div>
       
-      <div ref={printAreaRef} className="hidden">
-          <div className="p-8 font-sans">
-              <header className="flex justify-between items-start pb-4 border-b-2 border-black">
-                  <div className="text-left">
-                      <h1 className="text-3xl font-bold text-black">{settings.userName}</h1>
-                      <p className="text-gray-600">{settings.tractorName}</p>
-                  </div>
-                  {settings.logo && (
-                      <img src={settings.logo} alt="Business Logo" className="max-h-24 max-w-24 object-contain"/>
-                  )}
-              </header>
-
-              <section className="my-8">
-                  <div className="grid grid-cols-2 gap-4">
-                      <div>
-                          <h2 className="text-sm font-semibold uppercase text-gray-500">BILL TO</h2>
-                          <p className="text-lg font-bold text-black">{customer.name}</p>
-                          <p className="text-gray-700">{customer.phone}</p>
-                      </div>
-                      <div className="text-right">
-                          <h2 className="text-sm font-semibold uppercase text-gray-500">INVOICE DATE</h2>
-                          <p className="text-lg font-medium text-black">{new Date().toLocaleDateString()}</p>
-                      </div>
-                  </div>
-              </section>
-              
-              <section>
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                          <tr className="bg-black text-white">
-                              <th className="p-3">Date</th>
-                              <th className="p-3">Work Details</th>
-                              <th className="p-3 text-right">Cost</th>
-                              <th className="p-3 text-right">Paid</th>
-                              <th className="p-3 text-right">Balance</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {filteredWorkLogs.map(log => (
-                            <tr key={log.id} className="border-b border-gray-300">
-                              <td className="p-3">{new Date(log.date).toLocaleDateString()}</td>
-                              <td className="p-3">{log.equipment} ({log.hours}h {log.minutes}m)</td>
-                              <td className="p-3 text-right">₹{log.totalCost.toFixed(2)}</td>
-                              <td className="p-3 text-right">₹{(log.totalCost - log.balance).toFixed(2)}</td>
-                              <td className="p-3 text-right">₹{log.balance.toFixed(2)}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                  </table>
-              </section>
-
-              <section className="mt-8 flex justify-end">
-                  <div className="w-full max-w-xs">
-                      <div className="flex justify-between py-2">
-                          <span className="font-semibold text-gray-700">Total Cost</span>
-                          <span className="font-bold text-black">₹{totals.cost.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-2">
-                          <span className="font-semibold text-gray-700">Total Paid</span>
-                          <span className="font-bold text-green-600">₹{totals.paid.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between py-2 border-t-2 border-black mt-2">
-                          <span className="font-bold text-lg text-black">BALANCE DUE</span>
-                          <span className="font-bold text-lg text-red-600">₹{totals.balance.toFixed(2)}</span>
-                      </div>
-                  </div>
-              </section>
-              
-              <footer className="mt-16">
-                  <div className="w-1/3 pt-8">
-                    {settings.signature ? (
-                      <img src={settings.signature} alt="signature" className="max-h-16" />
-                    ) : (
-                      <>
-                        <div className="w-full border-t-2 border-gray-400"></div>
-                        <p className="text-gray-600 text-sm mt-2">Signature</p>
-                      </>
-                    )}
-                  </div>
-              </footer>
-          </div>
-      </div>
+      {/* This hidden div is no longer needed with the new dynamic approach, but we keep it for the ref */}
+      <div ref={printAreaRef} className="hidden"></div>
     </>
   );
 }
+
