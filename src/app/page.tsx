@@ -7,7 +7,6 @@ import { useCloudStorage } from '@/hooks/use-cloud-storage';
 import { AppContext, AppContextType } from '@/contexts/app-context';
 import DashboardView from '@/components/dashboard-view';
 import CustomerDetailView from '@/components/customer-detail-view';
-import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -42,8 +41,6 @@ export default function Home() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only set initialized to true if data has been loaded.
-    // The presence of a userName is a good indicator that settings are loaded.
     if (data.settings.userName) {
       setIsInitialized(true);
     }
@@ -63,7 +60,6 @@ export default function Home() {
       view,
       setView,
       
-      // Customers
       addCustomer: (customer) => {
         const newCustomer = { ...customer, id: uuidv4(), notes: '' };
         setData(prev => ({ ...prev, customers: [...(prev.customers || []), newCustomer]}));
@@ -82,7 +78,6 @@ export default function Home() {
         toast({ title: "Customer Deleted", description: "The customer and all their data have been removed." });
       },
 
-      // WorkLogs
       addWorkLog: (workLog) => {
         const newLog: WorkLog = { ...workLog, id: uuidv4(), payments: [], balance: workLog.totalCost };
         setData(prev => ({ ...prev, workLogs: [...(prev.workLogs || []), newLog]}));
@@ -101,7 +96,6 @@ export default function Home() {
         toast({ title: "Work Deleted", description: "The work entry has been removed." });
       },
 
-      // Payments
       addPayment: (workLogId, payment) => {
         setData(prev => ({
           ...prev,
@@ -119,7 +113,6 @@ export default function Home() {
         toast({ title: "Payment Added", description: `Payment of ₹${payment.amount} has been recorded.` });
       },
 
-      // Expenses
       addExpense: (expense) => {
         const newExpense: Expense = { ...expense, id: uuidv4() };
         setData(prev => ({ ...prev, expenses: [...(prev.expenses || []), newExpense]}));
@@ -134,13 +127,11 @@ export default function Home() {
         toast({ title: "Expense Deleted", description: "The expense has been removed." });
       },
       
-      // Settings
       updateSettings: (newSettings) => {
         setData(prev => ({ ...prev, settings: { ...(prev.settings || defaultSettings), ...newSettings }}));
         toast({ title: "Settings Updated", description: "Your settings have been saved." });
       },
 
-      // Notes
       updateCustomerNotes: updateCustomerNotes,
       data: data,
     };

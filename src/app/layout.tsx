@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/auth-context';
+import AuthLayout from './auth-layout';
 
 export const metadata: Metadata = {
   title: 'TractorTrack',
@@ -22,7 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-          {children}
+          <AuthLayout>
+            {children}
+          </AuthLayout>
         </AuthProvider>
         <Toaster />
       </body>

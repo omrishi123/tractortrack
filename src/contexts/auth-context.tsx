@@ -5,8 +5,6 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import LoginScreen from '@/components/login-screen';
-import OnboardingScreen from '@/components/onboarding-screen';
 import type { AppSettings } from '@/lib/types';
 
 interface AuthContextType {
@@ -42,13 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+        setLoading(false);
+        return;
+    };
 
     const docRef = doc(db, "users", currentUser.uid);
     const unsubscribeFirestore = onSnapshot(docRef, (doc) => {
         if (doc.exists()) {
             const data = doc.data();
-            // Check if user has completed onboarding by looking for a specific setting
             const settings = data.settings as AppSettings;
             if(settings && settings.userName) {
                  setNeedsOnboarding(false);
@@ -56,9 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                  setNeedsOnboarding(true);
             }
         } else {
-            // Document doesn't exist, so this is a new user
             setNeedsOnboarding(true);
         }
+        setLoading(false);
+    }, (error) => {
+        console.error("Firestore snapshot error:", error);
         setLoading(false);
     });
 
@@ -71,18 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     needsOnboarding,
   };
-
-  if (loading) {
-    return <div className="flex h-screen w-full items-center justify-center bg-background">Loading...</div>;
-  }
-  
-  if (!currentUser) {
-    return <LoginScreen />;
-  }
-
-  if (needsOnboarding) {
-    return <OnboardingScreen />;
-  }
 
   return (
     <AuthContext.Provider value={value}>
