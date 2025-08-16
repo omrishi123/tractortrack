@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { EmailAuthProvider } from 'firebase/auth';
+import { EmailAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import 'firebaseui/dist/firebaseui.css';
 import { auth } from '@/lib/firebase';
 import { TractorIcon } from './icons';
@@ -14,6 +14,9 @@ export default function LoginScreen() {
       const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
       ui.start('#firebaseui-auth-container', {
         signInOptions: [
+          {
+            provider: GoogleAuthProvider.PROVIDER_ID,
+          },
           {
             provider: EmailAuthProvider.PROVIDER_ID,
             requireDisplayName: false
@@ -32,7 +35,7 @@ export default function LoginScreen() {
                 <TractorIcon className="h-12 w-12 text-primary" />
                 <h1 className="text-4xl font-bold text-foreground ml-4">TractorTrack</h1>
             </div>
-            <p className="text-muted-foreground mb-8">Sign in to sync your data across devices.</p>
+            <p className="text-muted-foreground mb-8">Sign in or create an account to sync your data.</p>
             <div id="firebaseui-auth-container"></div>
         </div>
     </div>
