@@ -9,25 +9,41 @@ export const metadata: Metadata = {
   description: 'Manage your tractor business with ease.',
 };
 
+declare global {
+    interface Window {
+        Android?: {
+            startGoogleSignIn: () => void;
+            printPage: () => void;
+        };
+        triggerWebGoogleSignIn?: () => void;
+    }
+}
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const androidInterfaceScript = `
-    // Call this from your "Sign in with Google" button's onclick event
+    // This function is called from the Google Sign-In button in the React component
     function handleGoogleSignIn() {
         if (window.Android && typeof window.Android.startGoogleSignIn === 'function') {
+            // If the Android interface exists, call the native Android function
             window.Android.startGoogleSignIn();
         } else {
+            // Otherwise, call the web-based fallback function defined in login-screen.tsx
             console.log('Android interface not found. Using web sign-in.');
-            // Your regular web-based Google Sign-In logic goes here
+            if (window.triggerWebGoogleSignIn) {
+                window.triggerWebGoogleSignIn();
+            }
         }
     }
 
-    // Call this from your "Print" button's onclick event
+    // This function is called from the Print button in the React component
     function handlePrint() {
         if (window.Android && typeof window.Android.printPage === 'function') {
+            // If the Android interface exists, call the native Android print function
             window.Android.printPage();
         } else {
             // Fallback for regular web browsers
@@ -41,7 +57,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
         <AuthProvider>

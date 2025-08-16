@@ -15,6 +15,17 @@ interface BillingReportTabProps {
   customerId: string;
 }
 
+// Helper function to call the globally defined handlePrint
+const triggerPrint = () => {
+    if (window.handlePrint) {
+        window.handlePrint();
+    } else {
+        console.error("handlePrint function not found on window");
+        // Fallback for safety, though the global script should always define it
+        window.print();
+    }
+}
+
 export default function BillingReportTab({ customerId }: BillingReportTabProps) {
   const { customers, workLogs, settings } = useAppContext();
   const [startDate, setStartDate] = useState('');
@@ -40,10 +51,6 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       return acc;
     }, { cost: 0, paid: 0, balance: 0 });
   }, [filteredWorkLogs]);
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   const handleExportPDF = () => {
     if (!customer) return;
@@ -72,9 +79,9 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       const logData = [
         new Date(log.date).toLocaleDateString(),
         `${log.equipment} (${log.hours}h ${log.minutes}m)`,
-        `\u20B9${log.totalCost.toFixed(2)}`,
-        `\u20B9${(log.totalCost - log.balance).toFixed(2)}`,
-        `\u20B9${log.balance.toFixed(2)}`
+        `Rs ${log.totalCost.toFixed(2)}`,
+        `Rs ${(log.totalCost - log.balance).toFixed(2)}`,
+        `Rs ${log.balance.toFixed(2)}`
       ];
       tableRows.push(logData);
     });
@@ -93,11 +100,11 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('Total Cost:', 140, finalY + 10, { align: 'right' });
-    doc.text(`\u20B9${totals.cost.toFixed(2)}`, 200, finalY + 10, { align: 'right' });
+    doc.text(`Rs ${totals.cost.toFixed(2)}`, 200, finalY + 10, { align: 'right' });
     doc.text('Total Paid:', 140, finalY + 17, { align: 'right' });
-    doc.text(`\u20B9${totals.paid.toFixed(2)}`, 200, finalY + 17, { align: 'right' });
+    doc.text(`Rs ${totals.paid.toFixed(2)}`, 200, finalY + 17, { align: 'right' });
     doc.text('Balance Due:', 140, finalY + 24, { align: 'right' });
-    doc.text(`\u20B9${totals.balance.toFixed(2)}`, 200, finalY + 24, { align: 'right' });
+    doc.text(`Rs ${totals.balance.toFixed(2)}`, 200, finalY + 24, { align: 'right' });
     
     // Signature
     doc.line(140, finalY + 50, 200, finalY + 50);
@@ -161,12 +168,12 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
         </Table>
       </CardContent>
       <CardFooter>
-          <Button onClick={handlePrint} className="w-full"><Printer className="mr-2 h-4 w-4" /> Print Bill</Button>
+          <Button onClick={triggerPrint} className="w-full"><Printer className="mr-2 h-4 w-4" /> Print Bill</Button>
       </CardFooter>
     </Card>
 
     {/* This is the hidden, styled div for printing */}
-    <div ref={printAreaRef} className="hidden print:block p-8 font-sans">
+    <div ref={printAreaRef} className="hidden">
         <style>{`
             @media print {
                 body * {
@@ -180,10 +187,11 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
                     left: 0;
                     top: 0;
                     width: 100%;
+                    font-family: 'PT Sans', sans-serif;
                 }
             }
         `}</style>
-        <div className="print-area">
+        <div className="print-area p-8">
           <header className="flex justify-between items-start pb-4 border-b-2 border-gray-800">
               <div className="text-left">
                   <h1 className="text-3xl font-bold text-gray-900">{settings.userName}</h1>
@@ -209,7 +217,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
           </section>
           
           <section>
-               <table className="w-full text-left">
+               <table className="w-full text-left border-collapse">
                   <thead>
                       <tr className="bg-gray-800 text-white">
                           <th className="p-3">Date</th>

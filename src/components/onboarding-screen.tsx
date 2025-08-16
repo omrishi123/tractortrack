@@ -60,6 +60,7 @@ export default function OnboardingScreen() {
       },
     };
     
+    // We create the full initial data structure for a new user.
     const finalInitialData = {
         ...initialData,
         settings: initialSettings,
@@ -67,9 +68,10 @@ export default function OnboardingScreen() {
 
     try {
         const docRef = doc(db, "users", currentUser.uid);
+        // We use setDoc here to create the document for the new user.
         await setDoc(docRef, finalInitialData);
         toast({ title: "Welcome!", description: "Your details have been saved." });
-        // The AuthProvider will automatically switch the view upon detecting the change
+        // The AuthProvider will automatically detect the new data and switch the view.
     } catch (error) {
         console.error("Failed to save initial data:", error);
         toast({ variant: "destructive", title: "Setup Failed", description: "Could not save your details. Please try again." });

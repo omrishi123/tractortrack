@@ -41,7 +41,9 @@ export default function Home() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (data.settings.userName) {
+    // This effect ensures that we don't show a blank screen while data is loading,
+    // especially after the user has completed onboarding.
+    if (data && data.settings && data.settings.userName) {
       setIsInitialized(true);
     }
   }, [data]);
