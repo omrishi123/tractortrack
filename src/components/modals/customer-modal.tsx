@@ -24,10 +24,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAppContext } from '@/contexts/app-context';
 import type { Customer } from '@/lib/types';
+import { Textarea } from '../ui/textarea';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phone: z.string().min(10, { message: "Please enter a valid phone number." }),
+  address: z.string().optional(),
 });
 
 interface CustomerModalProps {
@@ -43,6 +45,7 @@ export default function CustomerModal({ isOpen, onOpenChange, customer }: Custom
     defaultValues: {
       name: '',
       phone: '',
+      address: '',
     },
   });
 
@@ -51,11 +54,13 @@ export default function CustomerModal({ isOpen, onOpenChange, customer }: Custom
       form.reset({
         name: customer.name,
         phone: customer.phone,
+        address: customer.address || '',
       });
     } else {
       form.reset({
         name: '',
         phone: '',
+        address: '',
       });
     }
   }, [customer, form, isOpen]);
@@ -101,6 +106,19 @@ export default function CustomerModal({ isOpen, onOpenChange, customer }: Custom
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
                     <Input placeholder="9876543210" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Enter customer's full address" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

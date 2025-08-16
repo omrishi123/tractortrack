@@ -118,6 +118,7 @@ export default function AdminPage() {
                               <TableRow>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Phone</TableHead>
+                                <TableHead>Address</TableHead>
                                 <TableHead className="text-right">Total Due</TableHead>
                               </TableRow>
                             </TableHeader>
@@ -126,6 +127,7 @@ export default function AdminPage() {
                                 <TableRow key={customer.id}>
                                   <TableCell>{customer.name}</TableCell>
                                   <TableCell>{customer.phone}</TableCell>
+                                  <TableCell>{customer.address || 'N/A'}</TableCell>
                                   <TableCell className="text-right font-semibold text-destructive">
                                     ₹{calculateCustomerDues(user, customer.id).toFixed(2)}
                                   </TableCell>

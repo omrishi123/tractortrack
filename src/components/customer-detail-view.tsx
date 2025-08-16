@@ -11,7 +11,7 @@ import AllEntriesTab from './tabs/all-entries-tab';
 import PaymentsTab from './tabs/payments-tab';
 import NotesTab from './tabs/notes-tab';
 import BillingReportTab from './tabs/billing-report-tab';
-import { DollarSign, FileText, List, Notebook, Tractor } from 'lucide-react';
+import { DollarSign, FileText, List, MapPin, Notebook, Tractor } from 'lucide-react';
 
 interface CustomerDetailViewProps {
   customerId: string;
@@ -46,6 +46,12 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
           <div className="mb-8">
             <h1 className="text-3xl font-bold">{customer.name}</h1>
             <p className="text-muted-foreground">{customer.phone}</p>
+            {customer.address && (
+                <p className="text-muted-foreground text-sm mt-1 flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    {customer.address}
+                </p>
+            )}
           </div>
 
           <div className="grid gap-4 grid-cols-2 md:grid-cols-3 mb-8">

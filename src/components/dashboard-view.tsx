@@ -6,7 +6,7 @@ import AppHeader from './app-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Search, Trash2, Users, FileWarning } from 'lucide-react';
+import { PlusCircle, Search, Trash2, Users, FileWarning, Map } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAppContext } from '@/contexts/app-context';
 import CustomerModal from './modals/customer-modal';
@@ -14,6 +14,7 @@ import ConfirmDialog from './modals/confirm-dialog';
 import ExpensesTab from './tabs/expenses-tab';
 import { Customer } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
+import MapViewTab from './tabs/map-view-tab';
 
 export default function DashboardView() {
   const { workLogs, customers, expenses, setView, deleteCustomer } = useAppContext();
@@ -97,9 +98,10 @@ export default function DashboardView() {
         </div>
 
         <Tabs defaultValue="dashboard">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            <TabsTrigger value="map-view"><Map className="mr-2 h-4 w-4" />Map View</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard" className="mt-6">
             <div className="flex items-center justify-between mb-4 gap-4">
@@ -140,6 +142,9 @@ export default function DashboardView() {
           </TabsContent>
           <TabsContent value="expenses" className="mt-6">
              <ExpensesTab />
+          </TabsContent>
+           <TabsContent value="map-view" className="mt-6">
+             <MapViewTab />
           </TabsContent>
         </Tabs>
       </main>

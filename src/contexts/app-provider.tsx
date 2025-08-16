@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback, ReactNode } from 'react';
-import { AppData, View, AppSettings, Payment, WorkLog, Expense } from '@/lib/types';
+import { AppData, View, AppSettings, Payment, WorkLog, Expense, Customer } from '@/lib/types';
 import { useCloudStorage } from '@/hooks/use-cloud-storage';
 import { AppContext, AppContextType } from '@/contexts/app-context';
 import { useToast } from '@/hooks/use-toast';
@@ -85,7 +85,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       setView: handleSetView,
       
       addCustomer: (customer) => {
-        const newCustomer = { ...customer, id: uuidv4(), notes: '' };
+        const newCustomer: Customer = { ...customer, id: uuidv4(), notes: '', address: customer.address || '' };
         setData(prev => ({ ...prev, customers: [...(prev.customers || []), newCustomer]}));
         toast({ title: "Customer Added", description: `${customer.name} has been added.` });
       },
