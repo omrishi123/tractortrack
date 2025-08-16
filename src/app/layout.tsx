@@ -14,6 +14,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const androidInterfaceScript = `
+    // Call this from your "Sign in with Google" button's onclick event
+    function handleGoogleSignIn() {
+        if (window.Android && typeof window.Android.startGoogleSignIn === 'function') {
+            window.Android.startGoogleSignIn();
+        } else {
+            console.log('Android interface not found. Using web sign-in.');
+            // Your regular web-based Google Sign-In logic goes here
+        }
+    }
+
+    // Call this from your "Print" button's onclick event
+    function handlePrint() {
+        if (window.Android && typeof window.Android.printPage === 'function') {
+            window.Android.printPage();
+        } else {
+            // Fallback for regular web browsers
+            window.print();
+        }
+    }
+  `;
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -28,6 +50,7 @@ export default function RootLayout({
           </AuthLayout>
         </AuthProvider>
         <Toaster />
+        <script dangerouslySetInnerHTML={{ __html: androidInterfaceScript }} />
       </body>
     </html>
   );
