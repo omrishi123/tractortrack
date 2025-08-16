@@ -30,7 +30,6 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
   const { customers, workLogs, settings } = useAppContext();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const printAreaRef = useRef<HTMLDivElement>(null);
 
   const customer = useMemo(() => customers.find(c => c.id === customerId), [customers, customerId]);
 
@@ -54,14 +53,11 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
 
   // Helper function to call the globally defined handlePrint
   const triggerPrint = () => {
-      // This is a timeout to ensure the DOM is updated before printing
-      setTimeout(() => {
-        if (window.Android && typeof window.Android.printPage === 'function') {
-            window.Android.printPage();
-        } else {
-            window.print();
-        }
-      }, 100);
+    if (window.Android && typeof window.Android.printPage === 'function') {
+        window.Android.printPage();
+    } else {
+        window.print();
+    }
   }
 
   const handleExportPDF = () => {
@@ -139,64 +135,62 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
 
   return (
     <>
-    <div className="no-print">
-        <Card>
-          <CardHeader>
-            <CardTitle>Billing Report</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4 items-end bg-muted p-4 rounded-lg mb-6">
-              <div>
-                <label className="text-sm font-medium">From Date</label>
-                <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">To Date</label>
-                <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-              </div>
-              <div className="flex-grow"></div>
-              <Button onClick={handleExportPDF} variant="outline" size="sm"><Download className="mr-2 h-4 w-4" /> Export PDF</Button>
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing Report</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4 items-end bg-muted p-4 rounded-lg mb-6">
+            <div>
+              <label className="text-sm font-medium">From Date</label>
+              <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
             </div>
+            <div>
+              <label className="text-sm font-medium">To Date</label>
+              <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            </div>
+            <div className="flex-grow"></div>
+            <Button onClick={handleExportPDF} variant="outline" size="sm"><Download className="mr-2 h-4 w-4" /> Export PDF</Button>
+          </div>
 
-            <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Work Details</TableHead>
-                    <TableHead className="text-right">Cost</TableHead>
-                    <TableHead className="text-right">Paid</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
+          <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Work Details</TableHead>
+                  <TableHead className="text-right">Cost</TableHead>
+                  <TableHead className="text-right">Paid</TableHead>
+                  <TableHead className="text-right">Balance</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredWorkLogs.map(log => (
+                  <TableRow key={log.id}>
+                    <TableCell>{new Date(log.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{log.equipment} ({log.hours}h {log.minutes}m)</TableCell>
+                    <TableCell className="text-right">₹{log.totalCost.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{(log.totalCost - log.balance).toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{log.balance.toFixed(2)}</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredWorkLogs.map(log => (
-                    <TableRow key={log.id}>
-                      <TableCell>{new Date(log.date).toLocaleDateString()}</TableCell>
-                      <TableCell>{log.equipment} ({log.hours}h {log.minutes}m)</TableCell>
-                      <TableCell className="text-right">₹{log.totalCost.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">₹{(log.totalCost - log.balance).toFixed(2)}</TableCell>
-                      <TableCell className="text-right">₹{log.balance.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                    <TableRow className="font-bold bg-muted/50">
-                        <TableCell colSpan={2}>Totals</TableCell>
-                        <TableCell className="text-right">₹{totals.cost.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">₹{totals.paid.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">₹{totals.balance.toFixed(2)}</TableCell>
-                    </TableRow>
-                </TableFooter>
-            </Table>
-          </CardContent>
-          <CardFooter>
-              <Button onClick={triggerPrint} className="w-full"><Printer className="mr-2 h-4 w-4" /> Print Bill</Button>
-          </CardFooter>
-        </Card>
-    </div>
-
+                ))}
+              </TableBody>
+              <TableFooter>
+                  <TableRow className="font-bold bg-muted/50">
+                      <TableCell colSpan={2}>Totals</TableCell>
+                      <TableCell className="text-right">₹{totals.cost.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{totals.paid.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{totals.balance.toFixed(2)}</TableCell>
+                  </TableRow>
+              </TableFooter>
+          </Table>
+        </CardContent>
+        <CardFooter>
+            <Button onClick={triggerPrint} className="w-full"><Printer className="mr-2 h-4 w-4" /> Print Bill</Button>
+        </CardFooter>
+      </Card>
+      
     {/* THIS IS THE DEDICATED PRINTABLE AREA */}
-    <div ref={printAreaRef} className="print-container hidden p-8 font-sans">
+    <div className="print-container hidden p-8 font-sans">
       <header className="flex justify-between items-start pb-4 border-b-2 border-black">
           <div className="text-left">
               <h1 className="text-3xl font-bold text-black">{settings.userName}</h1>
