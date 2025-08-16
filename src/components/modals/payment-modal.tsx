@@ -83,7 +83,7 @@ export default function PaymentModal({ isOpen, onOpenChange, workLog }: PaymentM
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount Paid</FormLabel>
+                  <FormLabel>Amount Paid (₹)</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" {...field} />
                   </FormControl>

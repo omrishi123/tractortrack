@@ -123,7 +123,7 @@ export default function SettingsModal({ isOpen, onOpenChange }: SettingsModalPro
                   name="rates.Rotavator"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Rotavator Rate (/hr)</FormLabel>
+                      <FormLabel>Rotavator Rate (₹/hr)</FormLabel>
                       <FormControl><Input type="number" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -134,7 +134,7 @@ export default function SettingsModal({ isOpen, onOpenChange }: SettingsModalPro
                   name="rates.Tang Har"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tang Har Rate (/hr)</FormLabel>
+                      <FormLabel>Tang Har Rate (₹/hr)</FormLabel>
                       <FormControl><Input type="number" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>

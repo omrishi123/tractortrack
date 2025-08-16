@@ -60,9 +60,9 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       const logData = [
         new Date(log.date).toLocaleDateString(),
         `${log.equipment} (${log.hours.toFixed(2)} hrs)`,
-        `Rs ${log.totalCost.toFixed(2)}`,
-        `Rs ${(log.totalCost - log.balance).toFixed(2)}`,
-        `Rs ${log.balance.toFixed(2)}`
+        `₹ ${log.totalCost.toFixed(2)}`,
+        `₹ ${(log.totalCost - log.balance).toFixed(2)}`,
+        `₹ ${log.balance.toFixed(2)}`
       ];
       tableRows.push(logData);
     });
@@ -70,9 +70,9 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     tableRows.push([
         "",
         "Total",
-        `Rs ${totals.cost.toFixed(2)}`,
-        `Rs ${totals.paid.toFixed(2)}`,
-        `Rs ${totals.balance.toFixed(2)}`,
+        `₹ ${totals.cost.toFixed(2)}`,
+        `₹ ${totals.paid.toFixed(2)}`,
+        `₹ ${totals.balance.toFixed(2)}`,
     ]);
 
     doc.autoTable({
