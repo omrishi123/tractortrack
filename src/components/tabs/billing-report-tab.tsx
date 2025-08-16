@@ -86,7 +86,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       tableRows.push(logData);
     });
     
-    doc.autoTable({
+    (doc as any).autoTable({
         head: [tableColumn],
         body: tableRows,
         startY: 75,
@@ -173,14 +173,11 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     </Card>
 
     {/* This is the hidden, styled div for printing */}
-    <div ref={printAreaRef} className="hidden">
+    <div ref={printAreaRef} className="hidden print:block">
         <style>{`
             @media print {
-                body * {
-                    visibility: hidden;
-                }
-                .print-area, .print-area * {
-                    visibility: visible;
+                body > *:not(.print-area) {
+                    display: none;
                 }
                 .print-area {
                     position: absolute;
@@ -188,6 +185,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
                     top: 0;
                     width: 100%;
                     font-family: 'PT Sans', sans-serif;
+                    visibility: visible;
                 }
             }
         `}</style>
@@ -268,3 +266,5 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     </>
   );
 }
+
+    
