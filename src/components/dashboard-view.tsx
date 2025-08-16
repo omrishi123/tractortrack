@@ -15,7 +15,7 @@ import { Customer } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 
 export default function DashboardView() {
-  const { workLogs, customers, setView, deleteCustomer } = useAppContext();
+  const { workLogs, customers, expenses, setView, deleteCustomer } = useAppContext();
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [customerToEdit, setCustomerToEdit] = useState<Customer | undefined>(undefined);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
@@ -23,10 +23,10 @@ export default function DashboardView() {
 
   const summary = useMemo(() => {
     const totalIncome = workLogs.reduce((sum, log) => sum + (log.totalCost - log.balance), 0);
-    const totalExpenses = data.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
     const netProfit = totalIncome - totalExpenses;
     return { totalIncome, totalExpenses, netProfit };
-  }, [workLogs, data.expenses]);
+  }, [workLogs, expenses]);
 
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
