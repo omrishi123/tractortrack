@@ -16,7 +16,7 @@ export default function MapViewTab() {
   // Function to open Google Maps with the address
   const openInGoogleMaps = (address: string) => {
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -24,7 +24,7 @@ export default function MapViewTab() {
       <CardHeader>
         <CardTitle>Customer Map View</CardTitle>
         <CardDescription>
-          Here are your customers with a saved address. Click to view on Google Maps.
+          Here are your customers with a saved address. Click the button to view them on Google Maps.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -40,7 +40,7 @@ export default function MapViewTab() {
                       <p className="text-sm text-muted-foreground">{customer.address}</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => openInGoogleMaps(customer.address)}>
+                  <Button variant="ghost" size="icon" onClick={() => openInGoogleMaps(customer.address)} aria-label={`Open map for ${customer.name}`}>
                     <ExternalLink className="h-5 w-5" />
                   </Button>
                 </div>
