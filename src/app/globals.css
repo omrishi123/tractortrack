@@ -70,14 +70,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-@layer utilities {
-  @media print {
-    body > :not(.print-container) {
-      display: none !important;
-    }
-    .print-container {
-      display: block !important;
-    }
-  }
-}
