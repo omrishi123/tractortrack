@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -16,7 +15,8 @@ export default function MapViewTab() {
   // Function to open Google Maps with the address
   const openInGoogleMaps = (address: string) => {
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // Using window.location.href is a more reliable way to trigger the native app from a webview
+    window.location.href = url;
   };
 
   return (
