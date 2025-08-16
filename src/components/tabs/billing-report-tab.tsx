@@ -17,8 +17,8 @@ interface BillingReportTabProps {
 
 // Helper function to call the globally defined handlePrint
 const triggerPrint = () => {
-    if (window.handlePrint) {
-        window.handlePrint();
+    if (window.Android && typeof window.Android.printPage === 'function') {
+        window.Android.printPage();
     } else {
         // Fallback if the global function isn't defined for some reason
         window.print();
@@ -137,8 +137,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
 
   return (
     <>
-    {/* This is the on-screen UI. It will be hidden during printing */}
-    <Card className="print:hidden">
+    <Card>
       <CardHeader>
         <CardTitle>Billing Report</CardTitle>
       </CardHeader>
@@ -192,8 +191,7 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
       </CardFooter>
     </Card>
 
-    {/* This is the dedicated print layout. It is hidden on screen and only visible for printing. */}
-    <div ref={printAreaRef} className="hidden print:block p-8 font-sans">
+    <div ref={printAreaRef} className="print-container hidden p-8 font-sans">
       <header className="flex justify-between items-start pb-4 border-b-2 border-black">
           <div className="text-left">
               <h1 className="text-3xl font-bold text-black">{settings.userName}</h1>

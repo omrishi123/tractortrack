@@ -25,7 +25,7 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
 
   if (!customer) {
     return (
-      <div>
+      <div className="no-print">
         <AppHeader showBackButton />
         <main className="container py-8">
           <p>Customer not found.</p>
@@ -40,60 +40,63 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
 
   return (
     <>
-      <AppHeader showBackButton />
-      <main className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">{customer.name}</h1>
-          <p className="text-muted-foreground">{customer.phone}</p>
-        </div>
+      <div className="no-print">
+        <AppHeader showBackButton />
+        <main className="container py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold">{customer.name}</h1>
+            <p className="text-muted-foreground">{customer.phone}</p>
+          </div>
 
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Billed</CardTitle>
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold">₹{totalBilled.toFixed(2)}</div></CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold text-green-600">₹{totalPaid.toFixed(2)}</div></CardContent>
-          </Card>
-          <Card className="col-span-2 md:col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Balance Due</CardTitle>
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold text-red-600">₹{totalDue.toFixed(2)}</div></CardContent>
-          </Card>
-        </div>
-        
-        <Tabs defaultValue="add-work">
-           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
-            <TabsTrigger value="add-work" className="flex items-center gap-2"><Tractor /> Add Work</TabsTrigger>
-            <TabsTrigger value="all-entries" className="flex items-center gap-2"><List /> All Entries</TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2"><DollarSign /> Payments</TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center gap-2"><Notebook /> Notes</TabsTrigger>
-            <TabsTrigger value="billing-report" className="flex items-center gap-2"><FileText/> Billing Report</TabsTrigger>
-          </TabsList>
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-3 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Billed</CardTitle>
+              </CardHeader>
+              <CardContent><div className="text-2xl font-bold">₹{totalBilled.toFixed(2)}</div></CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
+              </CardHeader>
+              <CardContent><div className="text-2xl font-bold text-green-600">₹{totalPaid.toFixed(2)}</div></CardContent>
+            </Card>
+            <Card className="col-span-2 md:col-span-1">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Balance Due</CardTitle>
+              </CardHeader>
+              <CardContent><div className="text-2xl font-bold text-red-600">₹{totalDue.toFixed(2)}</div></CardContent>
+            </Card>
+          </div>
           
-          <TabsContent value="add-work" className="mt-6">
-            <AddWorkTab customerId={customerId} />
-          </TabsContent>
-          <TabsContent value="all-entries" className="mt-6">
-            <AllEntriesTab customerId={customerId} />
-          </TabsContent>
-          <TabsContent value="payments" className="mt-6">
-            <PaymentsTab customerId={customerId} />
-          </TabsContent>
-          <TabsContent value="notes" className="mt-6">
-            <NotesTab customerId={customerId} />
-          </TabsContent>
-          <TabsContent value="billing-report" className="mt-6">
-            <BillingReportTab customerId={customerId} />
-          </TabsContent>
-        </Tabs>
-      </main>
+          <Tabs defaultValue="add-work">
+             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
+              <TabsTrigger value="add-work" className="flex items-center gap-2"><Tractor /> Add Work</TabsTrigger>
+              <TabsTrigger value="all-entries" className="flex items-center gap-2"><List /> All Entries</TabsTrigger>
+              <TabsTrigger value="payments" className="flex items-center gap-2"><DollarSign /> Payments</TabsTrigger>
+              <TabsTrigger value="notes" className="flex items-center gap-2"><Notebook /> Notes</TabsTrigger>
+              <TabsTrigger value="billing-report" className="flex items-center gap-2"><FileText/> Billing Report</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="add-work" className="mt-6">
+              <AddWorkTab customerId={customerId} />
+            </TabsContent>
+            <TabsContent value="all-entries" className="mt-6">
+              <AllEntriesTab customerId={customerId} />
+            </TabsContent>
+            <TabsContent value="payments" className="mt-6">
+              <PaymentsTab customerId={customerId} />
+            </TabsContent>
+            <TabsContent value="notes" className="mt-6">
+              <NotesTab customerId={customerId} />
+            </TabsContent>
+            <TabsContent value="billing-report" className="mt-6">
+              <BillingReportTab customerId={customerId} />
+            </TabsContent>
+          </Tabs>
+        </main>
+      </div>
+      {/* The printable area is now part of the BillingReportTab component, which is conditionally rendered here */}
     </>
   );
 }
