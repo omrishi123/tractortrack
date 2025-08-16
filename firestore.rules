@@ -1,12 +1,24 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow users to read, write, and delete their own document in the 'users' collection.
-    // The document ID must match the UID of the authenticated user.
+
+    // Helper function to check if a user is an admin
+    function isAdmin(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.settings.isAdmin == true;
+    }
+
     match /users/{userId} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      // A user can always read and write their own data
+      allow read, write: if request.auth.uid == userId;
+
+      // An admin can read any user's document
+      allow get: if request.auth.uid != null && isAdmin(request.auth.uid);
+    }
+    
+    // Admin can list all users
+    match /users {
+        allow list: if request.auth.uid != null && isAdmin(request.auth.uid);
     }
   }
 }

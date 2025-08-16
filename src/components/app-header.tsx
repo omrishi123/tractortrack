@@ -2,8 +2,9 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Settings, ArrowLeft, LogOut } from 'lucide-react';
+import { Settings, ArrowLeft, LogOut, Shield } from 'lucide-react';
 import { TractorIcon } from '@/components/icons';
 import { useAppContext } from '@/contexts/app-context';
 import SettingsModal from './modals/settings-modal';
@@ -51,6 +52,14 @@ export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
 
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-1">
+               {settings?.isAdmin && (
+                <Link href="/admin" passHref>
+                  <Button variant="ghost" size="icon">
+                    <Shield className="h-5 w-5" />
+                    <span className="sr-only">Admin Panel</span>
+                  </Button>
+                </Link>
+              )}
               <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)}>
                 <Settings className="h-5 w-5" />
                 <span className="sr-only">Settings</span>

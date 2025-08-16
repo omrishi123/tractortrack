@@ -5,6 +5,7 @@ import React, { ReactNode } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import LoginScreen from '@/components/login-screen';
 import OnboardingScreen from '@/components/onboarding-screen';
+import AppProvider from '@/contexts/app-provider';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
     const { currentUser, loading, needsOnboarding } = useAuth();
@@ -21,5 +22,5 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         return <OnboardingScreen />;
     }
 
-    return <>{children}</>;
+    return <AppProvider>{children}</AppProvider>;
 }

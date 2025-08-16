@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { Customer, WorkLog, Expense, AppSettings, View, Payment } from '@/lib/types';
+import type { AppData, Customer, WorkLog, Expense, AppSettings, View, Payment } from '@/lib/types';
 
 export interface AppContextType {
   customers: Customer[];

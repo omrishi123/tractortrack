@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/auth-context';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { initialData } from '@/app/page';
+import { initialData } from '@/contexts/app-provider';
 import { useToast } from '@/hooks/use-toast';
 import { TractorIcon } from './icons';
 
@@ -59,6 +59,7 @@ export default function OnboardingScreen() {
         'Tang Har': values.tangHarRate,
       },
       signature: '', // Initialize signature as empty
+      email: currentUser.email || '', // Save user's email
     };
     
     // We create the full initial data structure for a new user.

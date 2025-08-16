@@ -46,6 +46,8 @@ export interface AppSettings {
     Rotavator: number; // in days
     'Tang Har': number; // in days
   };
+  isAdmin?: boolean;
+  email?: string;
 }
 
 export type AppData = {
