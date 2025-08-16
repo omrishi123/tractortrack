@@ -110,9 +110,13 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     doc.text('Balance Due:', 140, finalY + 24, { align: 'right' });
     doc.text(`Rs ${totals.balance.toFixed(2)}`, 200, finalY + 24, { align: 'right' });
     
-    doc.line(140, finalY + 50, 200, finalY + 50);
-    doc.text('Signature', 170, finalY + 55, { align: 'center' });
-
+    if (settings.signature) {
+        doc.addImage(settings.signature, 'PNG', 140, finalY + 30, 60, 25, undefined, 'FAST');
+    } else {
+        doc.line(140, finalY + 50, 200, finalY + 50);
+        doc.text('Signature', 170, finalY + 55, { align: 'center' });
+    }
+    
     const fileName = `billing-report-${customer?.name}.pdf`;
 
     // Check if the native Android interface is available
@@ -253,9 +257,16 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
           </div>
       </section>
       
-      <footer className="mt-24">
-          <div className="w-1/3 pt-8 border-t-2 border-gray-400">
-              <p className="text-gray-600 text-sm">Signature</p>
+      <footer className="mt-16">
+          <div className="w-1/3 pt-8">
+            {settings.signature ? (
+              <img src={settings.signature} alt="signature" className="max-h-16" />
+            ) : (
+               <>
+                <div className="w-full border-t-2 border-gray-400"></div>
+                <p className="text-gray-600 text-sm mt-2">Signature</p>
+              </>
+            )}
           </div>
       </footer>
     </div>

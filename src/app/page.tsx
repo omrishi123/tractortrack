@@ -14,6 +14,7 @@ const defaultSettings: AppSettings = {
   userName: '',
   tractorName: '',
   logo: '',
+  signature: '',
   rates: {
     Rotavator: 1000,
     'Tang Har': 1200,

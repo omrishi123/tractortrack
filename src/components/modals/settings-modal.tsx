@@ -33,6 +33,7 @@ import { useAppContext } from '@/contexts/app-context';
 import type { AppSettings } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import AIPredictionModal from './ai-prediction-modal';
+import { Separator } from '../ui/separator';
 
 const settingsSchema = z.object({
   userName: z.string().min(1, "User name is required"),
@@ -73,6 +74,19 @@ export default function SettingsModal({ isOpen, onOpenChange }: SettingsModalPro
         const base64String = reader.result as string;
         updateSettings({ logo: base64String });
         toast({ title: "Logo updated successfully!" });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        updateSettings({ signature: base64String });
+        toast({ title: "Signature updated successfully!" });
       };
       reader.readAsDataURL(file);
     }
@@ -141,6 +155,9 @@ export default function SettingsModal({ isOpen, onOpenChange }: SettingsModalPro
                   )}
                 />
               </div>
+
+              <Separator />
+
               <FormItem>
                 <FormLabel>Business Logo</FormLabel>
                 <div className="flex items-center gap-4">
@@ -148,6 +165,18 @@ export default function SettingsModal({ isOpen, onOpenChange }: SettingsModalPro
                   <Input type="file" accept="image/*" onChange={handleLogoUpload} className="flex-1"/>
                 </div>
               </FormItem>
+
+               <FormItem>
+                <FormLabel>Signature Image</FormLabel>
+                <div className="flex items-center gap-4">
+                  {settings.signature && <img src={settings.signature} alt="signature" className="h-12 w-24 object-contain bg-slate-100 p-1" />}
+                  <Input type="file" accept="image/*" onChange={handleSignatureUpload} className="flex-1"/>
+                </div>
+                <FormMessage>Upload an image with a transparent background for best results.</FormMessage>
+              </FormItem>
+
+              <Separator />
+
               <FormField
                 control={form.control}
                 name="language"

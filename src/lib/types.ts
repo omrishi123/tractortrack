@@ -36,6 +36,7 @@ export interface AppSettings {
   userName: string;
   tractorName: string;
   logo: string; // base64
+  signature: string; // base64
   rates: {
     Rotavator: number;
     'Tang Har': number;

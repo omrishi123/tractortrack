@@ -58,6 +58,7 @@ export default function OnboardingScreen() {
         Rotavator: values.rotavatorRate,
         'Tang Har': values.tangHarRate,
       },
+      signature: '', // Initialize signature as empty
     };
     
     // We create the full initial data structure for a new user.
