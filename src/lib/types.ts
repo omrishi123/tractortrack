@@ -2,7 +2,7 @@ export interface Customer {
   id: string;
   name: string;
   phone: string;
-  notes?: string;
+  notes: string;
 }
 
 export interface Payment {

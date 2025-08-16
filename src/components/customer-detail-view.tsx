@@ -5,6 +5,12 @@ import AppHeader from './app-header';
 import { useAppContext } from '@/contexts/app-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AddWorkTab from './tabs/add-work-tab';
+import AllEntriesTab from './tabs/all-entries-tab';
+import PaymentsTab from './tabs/payments-tab';
+import NotesTab from './tabs/notes-tab';
+import BillingReportTab from './tabs/billing-report-tab';
+import { DollarSign, FileText, List, Notebook, Tractor } from 'lucide-react';
 
 interface CustomerDetailViewProps {
   customerId: string;
@@ -62,28 +68,28 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
         </div>
         
         <Tabs defaultValue="add-work">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="add-work">Add Work</TabsTrigger>
-            <TabsTrigger value="all-entries">All Entries</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
-            <TabsTrigger value="billing-report">Billing Report</TabsTrigger>
+           <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+            <TabsTrigger value="add-work" className="flex items-center gap-2"><Tractor /> Add Work</TabsTrigger>
+            <TabsTrigger value="all-entries" className="flex items-center gap-2"><List /> All Entries</TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-2"><DollarSign /> Payments</TabsTrigger>
+            <TabsTrigger value="notes" className="flex items-center gap-2"><Notebook /> Notes</TabsTrigger>
+            <TabsTrigger value="billing-report" className="flex items-center gap-2"><FileText/> Billing Report</TabsTrigger>
           </TabsList>
           
           <TabsContent value="add-work" className="mt-6">
-            <Card><CardContent className="p-6"><p>Add work form coming soon.</p></CardContent></Card>
+            <AddWorkTab customerId={customerId} />
           </TabsContent>
           <TabsContent value="all-entries" className="mt-6">
-            <Card><CardContent className="p-6"><p>List of all work entries coming soon.</p></CardContent></Card>
+            <AllEntriesTab customerId={customerId} />
           </TabsContent>
           <TabsContent value="payments" className="mt-6">
-            <Card><CardContent className="p-6"><p>Payment management coming soon.</p></CardContent></Card>
+            <PaymentsTab customerId={customerId} />
           </TabsContent>
           <TabsContent value="notes" className="mt-6">
-            <Card><CardContent className="p-6"><p>Customer notes coming soon.</p></CardContent></Card>
+            <NotesTab customerId={customerId} />
           </TabsContent>
           <TabsContent value="billing-report" className="mt-6">
-            <Card><CardContent className="p-6"><p>Billing report and export coming soon.</p></CardContent></Card>
+            <BillingReportTab customerId={customerId} />
           </TabsContent>
         </Tabs>
       </main>

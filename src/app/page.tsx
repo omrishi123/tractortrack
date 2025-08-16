@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { AppData, View, Customer, WorkLog, Expense, AppSettings } from '@/lib/types';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { AppData, View, Customer, WorkLog, Expense, AppSettings, Payment } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { AppContext, AppContextType } from '@/contexts/app-context';
 import DashboardView from '@/components/dashboard-view';
@@ -41,9 +41,15 @@ export default function Home() {
     setIsInitialized(true);
   }, []);
 
+  const updateCustomerNotes = useCallback((customerId: string, notes: string) => {
+    setData(prev => ({
+        ...prev,
+        customers: prev.customers.map(c => c.id === customerId ? { ...c, notes } : c)
+    }));
+    toast({ title: "Notes Updated", description: "Customer notes have been saved." });
+  }, [setData, toast]);
+
   const contextValue = useMemo<AppContextType>(() => {
-    const { customers, workLogs, expenses, settings } = data;
-    
     return {
       ...data,
       view,
@@ -51,7 +57,7 @@ export default function Home() {
       
       // Customers
       addCustomer: (customer) => {
-        const newCustomer = { ...customer, id: uuidv4() };
+        const newCustomer = { ...customer, id: uuidv4(), notes: '' };
         setData(prev => ({ ...prev, customers: [...prev.customers, newCustomer]}));
         toast({ title: "Customer Added", description: `${customer.name} has been added.` });
       },
@@ -70,12 +76,16 @@ export default function Home() {
 
       // WorkLogs
       addWorkLog: (workLog) => {
-        const newLog = { ...workLog, id: uuidv4(), payments: [], balance: workLog.totalCost };
+        const newLog: WorkLog = { ...workLog, id: uuidv4(), payments: [], balance: workLog.totalCost };
         setData(prev => ({ ...prev, workLogs: [...prev.workLogs, newLog]}));
         toast({ title: "Work Logged", description: `New work entry has been saved.` });
       },
       updateWorkLog: (updatedLog) => {
-        setData(prev => ({ ...prev, workLogs: prev.workLogs.map(w => w.id === updatedLog.id ? updatedLog : w)}));
+        const totalPaid = updatedLog.payments.reduce((sum, p) => sum + p.amount, 0);
+        const newBalance = updatedLog.totalCost - totalPaid;
+        const finalLog = { ...updatedLog, balance: newBalance };
+
+        setData(prev => ({ ...prev, workLogs: prev.workLogs.map(w => w.id === finalLog.id ? finalLog : w)}));
         toast({ title: "Work Updated", description: "The work entry has been updated." });
       },
       deleteWorkLog: (workLogId) => {
@@ -89,7 +99,7 @@ export default function Home() {
           ...prev,
           workLogs: prev.workLogs.map(w => {
             if (w.id === workLogId) {
-              const newPayment = { ...payment, id: uuidv4() };
+              const newPayment: Payment = { ...payment, id: uuidv4() };
               const updatedPayments = [...w.payments, newPayment];
               const totalPaid = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
               const newBalance = w.totalCost - totalPaid;
@@ -103,9 +113,13 @@ export default function Home() {
 
       // Expenses
       addExpense: (expense) => {
-        const newExpense = { ...expense, id: uuidv4() };
+        const newExpense: Expense = { ...expense, id: uuidv4() };
         setData(prev => ({ ...prev, expenses: [...prev.expenses, newExpense]}));
         toast({ title: "Expense Added", description: "The new expense has been recorded." });
+      },
+      updateExpense: (updatedExpense) => {
+        setData(prev => ({ ...prev, expenses: prev.expenses.map(e => e.id === updatedExpense.id ? updatedExpense : e) }));
+        toast({ title: "Expense Updated", description: "The expense has been updated." });
       },
       deleteExpense: (expenseId) => {
         setData(prev => ({ ...prev, expenses: prev.expenses.filter(e => e.id !== expenseId)}));
@@ -117,8 +131,11 @@ export default function Home() {
         setData(prev => ({ ...prev, settings: { ...prev.settings, ...newSettings }}));
         toast({ title: "Settings Updated", description: "Your settings have been saved." });
       },
+
+      // Notes
+      updateCustomerNotes: updateCustomerNotes,
     };
-  }, [data, view, setData, toast]);
+  }, [data, view, setData, toast, updateCustomerNotes]);
 
   if (!isInitialized) {
     return <div className="flex h-screen w-full items-center justify-center bg-background">Loading...</div>;
@@ -126,13 +143,13 @@ export default function Home() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <div className="min-h-screen bg-background text-foreground">
+      <main className="min-h-screen bg-background text-foreground">
         {view.type === 'dashboard' ? (
           <DashboardView />
         ) : (
           <CustomerDetailView customerId={view.customerId} />
         )}
-      </div>
+      </main>
     </AppContext.Provider>
   );
 }

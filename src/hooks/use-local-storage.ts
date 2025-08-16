@@ -20,7 +20,7 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
     }
   }, [initialValue, key]);
 
-  const [storedValue, setStoredValue] = useState<T>(readValue);
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
 
   const setValue = (value: T | ((val: T) => T)) => {
     if (!isBrowser) {
@@ -36,11 +36,12 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
       console.warn(`Error setting localStorage key "${key}":`, error);
     }
   };
-
+  
   useEffect(() => {
     setStoredValue(readValue());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return [storedValue, setValue];
 }
