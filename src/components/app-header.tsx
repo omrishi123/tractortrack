@@ -36,11 +36,17 @@ export default function AppHeader({ showBackButton = false }: AppHeaderProps) {
               </Button>
             ) : (
               <div className="flex items-center space-x-2">
-                <TractorIcon className="h-7 w-7 text-primary" />
-                <span className="inline-block font-bold text-xl">TractorTrack</span>
+                <TractorIcon className="h-8 w-8 text-primary" />
+                <div>
+                  <span className="inline-block font-bold text-xl">TractorTrack</span>
+                  {displayName && (
+                    <p className="text-xs text-muted-foreground leading-tight">
+                      Welcome, {displayName}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
-             {displayName && <p className="text-sm text-muted-foreground self-center hidden sm:block">Welcome, {displayName}</p>}
           </div>
 
           <div className="flex flex-1 items-center justify-end space-x-4">
