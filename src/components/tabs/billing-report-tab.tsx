@@ -173,23 +173,8 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
     </Card>
 
     {/* This is the hidden, styled div for printing */}
-    <div ref={printAreaRef} className="hidden print:block">
-        <style>{`
-            @media print {
-                body > *:not(.print-area) {
-                    display: none;
-                }
-                .print-area {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    font-family: 'PT Sans', sans-serif;
-                    visibility: visible;
-                }
-            }
-        `}</style>
-        <div className="print-area p-8">
+    <div className="hidden">
+        <div ref={printAreaRef} className="print-area p-8 font-sans">
           <header className="flex justify-between items-start pb-4 border-b-2 border-gray-800">
               <div className="text-left">
                   <h1 className="text-3xl font-bold text-gray-900">{settings.userName}</h1>
@@ -263,8 +248,20 @@ export default function BillingReportTab({ customerId }: BillingReportTabProps) 
           </footer>
         </div>
     </div>
+    <style jsx global>{`
+        @media print {
+          body > *:not(.print-area) {
+            display: none !important;
+          }
+          .print-area {
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+          }
+        }
+    `}</style>
     </>
   );
 }
-
-    
