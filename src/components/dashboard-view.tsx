@@ -49,7 +49,7 @@ export default function DashboardView() {
     <>
       <AppHeader />
       <main className="container py-8">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -85,7 +85,7 @@ export default function DashboardView() {
               <div className="text-2xl font-bold">{summary.totalCustomers}</div>
             </CardContent>
           </Card>
-           <Card>
+           <Card className="col-span-2 sm:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Dues</CardTitle>
                <FileWarning className="h-4 w-4 text-muted-foreground" />

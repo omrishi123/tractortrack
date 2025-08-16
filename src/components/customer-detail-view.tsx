@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo } from 'react';
@@ -46,7 +47,7 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
           <p className="text-muted-foreground">{customer.phone}</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3 mb-8">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Billed</CardTitle>
@@ -59,7 +60,7 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
             </CardHeader>
             <CardContent><div className="text-2xl font-bold text-green-600">₹{totalPaid.toFixed(2)}</div></CardContent>
           </Card>
-          <Card>
+          <Card className="col-span-2 md:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Balance Due</CardTitle>
             </CardHeader>
@@ -68,7 +69,7 @@ export default function CustomerDetailView({ customerId }: CustomerDetailViewPro
         </div>
         
         <Tabs defaultValue="add-work">
-           <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
             <TabsTrigger value="add-work" className="flex items-center gap-2"><Tractor /> Add Work</TabsTrigger>
             <TabsTrigger value="all-entries" className="flex items-center gap-2"><List /> All Entries</TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center gap-2"><DollarSign /> Payments</TabsTrigger>
